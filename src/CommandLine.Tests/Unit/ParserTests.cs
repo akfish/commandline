@@ -64,7 +64,8 @@ namespace CommandLine.Tests.Unit
             // Fixture setup
             var expectedOptions = new FakeOptions
                 {
-                    StringValue = "strvalue", IntSequence = new[] { 1, 2, 3 }
+                    StringValue = "strvalue",
+                    IntSequence = new[] { 1, 2, 3 }
                 };
             var sut = new Parser();
 
@@ -164,6 +165,57 @@ namespace CommandLine.Tests.Unit
             // Verify outcome
             Assert.IsType<CloneOptions>(result.Value);
             result.Value.ShouldHave().AllRuntimeProperties().EqualTo(expectedOptions);
+            Assert.False(result.Errors.Any());
+            // Teardown
+        }
+
+        [Fact]
+        public void Parse_nested_verbs()
+        {
+            // Set up
+            var expectedOptions = new AccountOptions()
+            {
+                RemoveVerb = new RemoveOptions() { Name = "whatever_I_dont_like" }
+            };
+
+            // Do stuff
+            var parser = new Parser();
+            var result = parser.ParseArguments(
+                new[] { "account", "remove", "whatever_I_dont_like" },
+                typeof(AccountOptions), typeof(RepoOptions), typeof(ArchiveOptions));
+
+            // Verify 
+            Assert.IsType<VerbPath<AccountOptions>>(result.Value);
+            var path = result.Value as VerbPath<AccountOptions>;
+            Assert.NotNull(path.Root);
+            Assert.IsType <RemoveOptions>(path.Last);
+            Assert.Equal(2, path.Count);
+            path.Root.ShouldHave().AllRuntimeProperties().EqualTo(expectedOptions);
+            Assert.False(result.Errors.Any());
+            // Teardown
+        }
+
+        [Fact]
+        public void Parse_nested_verbs_using_generic_overloads()
+        {
+            // Set up
+            var expectedOptions = new AccountOptions()
+            {
+                RemoveVerb = new RemoveOptions() { Name = "whatever_I_dont_like" }
+            };
+
+            // Do stuff
+            var parser = new Parser();
+            var result = parser.ParseArguments<AccountOptions, RepoOptions, ArchiveOptions>(
+                new[] { "account", "remove", "whatever_I_dont_like" });
+
+            // Verify 
+            Assert.IsType<VerbPath<AccountOptions>>(result.Value);
+            var path = result.Value as VerbPath<AccountOptions>;
+            Assert.NotNull(path.Root);
+            Assert.IsType<RemoveOptions>(path.Last);
+            Assert.Equal(2, path.Count);
+            path.Root.ShouldHave().AllRuntimeProperties().EqualTo(expectedOptions);
             Assert.False(result.Errors.Any());
             // Teardown
         }

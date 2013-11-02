@@ -58,6 +58,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Fakes\NestedVerbFakes.cs" />
     <Compile Include="Fakes\FakeOptionsWithDouble.cs" />
     <Compile Include="Fakes\FakeOptionsWithEnum.cs" />
     <Compile Include="Fakes\FakeOptionsWithMetaValue.cs" />
